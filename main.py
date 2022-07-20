@@ -3,7 +3,7 @@ import random
 import key
 
 # ゲームの状態定数
-STATE = 0  # 現在の状態
+STATE = 1  # 現在の状態
 TITLE = 1
 GAME = 2
 CLEAR = 3
