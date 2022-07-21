@@ -34,3 +34,4 @@ def release(e):
     if key == "Right":
         right = False
     koff = False
+    key = ""
