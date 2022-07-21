@@ -1,3 +1,4 @@
+# BGM,効果音:魔王魂
 import tkinter as tk
 import random
 import math
