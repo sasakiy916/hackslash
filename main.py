@@ -14,7 +14,7 @@ import item
 state = 1  # 現在の状態
 TITLE = 1
 GAME = 2
-CLEAR = 3
+# CLEAR = 3
 GAMEOVER = 4
 
 timer = 0
@@ -78,7 +78,7 @@ def spawn_item(num):
 
 
 def main():
-    global state, fnt1, fnt2, timer, timer_count, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se
+    global score, state, fnt1, fnt2, timer, timer_count, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se
     # 経過時間 ミリ秒→秒に変換
     play_time = math.floor(timer * timer_count / 1000)
     canvas.delete("SCREEN")
@@ -88,6 +88,9 @@ def main():
                            fill="blue", font=fnt2, tag="SCREEN")
         canvas.create_text(c_width/2, c_height/2+80, text="Press Space to Start",
                            fill="gold", font=fnt1, tag="SCREEN")
+        if score != 0:
+            canvas.create_text(c_width/2, c_height/2+160, text=f"前回のTIME:{score}",
+                               fill="red", font=fnt1, tag="SCREEN")
         # spaceキーでゲームスタート
         if key.key == "space":
             init_player()
@@ -141,8 +144,12 @@ def main():
             if enemy_neko.hit_check(neko):
                 gameover_se.play()
                 state = GAMEOVER
+                score = play_time
                 timer = 0
+        timer += 1
     if state == GAMEOVER:
+        canvas.create_text(10, 10, text=f"TIME:{score}",
+                           fill="black", font=fnt1, tag="SCREEN", anchor="nw")
         canvas.create_text(c_width/2, c_height/2, text="GAME OVER",
                            fill="red", font=fnt2, tag="SCREEN")
         if pygame.mixer.music.get_busy() == True:
@@ -150,7 +157,7 @@ def main():
         if timer == 30:
             state = TITLE
             timer = 0
-    timer += 1
+        timer += 1
     root.after(timer_count, main)
 
 
