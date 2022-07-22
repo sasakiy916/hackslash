@@ -18,6 +18,6 @@ class Enemy:
 
     # プレイヤーとの当たり判定
     def hit_check(self, target):
-        if (self.x-target.x)**2 + (self.y-target.y)**2 < 64**2:
+        if (self.x-target.x)**2 + (self.y-target.y)**2 < 52**2:
             return True
         return False

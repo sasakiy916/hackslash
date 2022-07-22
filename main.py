@@ -72,6 +72,11 @@ def spawn_enemy(num):
             x, y, random.randint(0, 4)))
 
 
+def init_items():
+    global items
+    items = []
+
+
 def spawn_item(num):
     global items
     items.append(item.Item(c_width, c_height))
@@ -95,6 +100,7 @@ def main():
         if key.key == "space":
             init_player()
             init_enemy()
+            init_items()
             state = GAME
             pygame.init()
             # 音声読み込み
@@ -127,7 +133,7 @@ def main():
                 items.remove(item)
                 delete_se.play()
         # 5秒毎に敵を追加
-        if timer*timer_count % 5000 == 0:
+        if timer != 0 and timer*timer_count % 5000 == 0:
             spawn_enemy(2)
             spawn_enemy_se.play()
             # 50%の確率でアイテム出現
