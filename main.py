@@ -14,7 +14,7 @@ import item
 state = 1  # 現在の状態
 TITLE = 1
 GAME = 2
-# CLEAR = 3
+# CLEAR = 3  # 未実装
 GAMEOVER = 4
 
 timer = 0
@@ -38,19 +38,25 @@ spawn_enemy_se = None
 delete_se = None
 gameover_se = None
 
+# プレイヤーの初期化
+
 
 def init_player():
     global neko, c_width, c_height
     neko = player.Player(c_width/2, c_height/2)
 
+# 敵の初期化
+
 
 def init_enemy():
     global enemies_neko
     enemies_neko = []
-    spawn_enemy(1)
+    spawn_enemy(1, 0)
+
+# 敵スポーン
 
 
-def spawn_enemy(num):
+def spawn_enemy(num, time):
     global enemies_neko
     for i in range(num):
         # 出現方向(上下左右)、場所抽選
@@ -69,12 +75,16 @@ def spawn_enemy(num):
             y = random.randint(0, c_height)
         # 敵をインスタンス化
         enemies_neko.append(enemy.Enemy(
-            x, y, random.randint(0, 4)))
+            x, y, random.randint(0, 4), time))
+
+# アイテム初期化
 
 
 def init_items():
     global items
     items = []
+
+# アイテムスポーン
 
 
 def spawn_item(num):
@@ -134,7 +144,7 @@ def main():
                 delete_se.play()
         # 5秒毎に敵を追加
         if timer != 0 and timer*timer_count % 5000 == 0:
-            spawn_enemy(2)
+            spawn_enemy(2, play_time)
             spawn_enemy_se.play()
             # 50%の確率でアイテム出現
             item_random = random.randrange(2)
@@ -143,7 +153,7 @@ def main():
                 spawn_item_se.play()
         # 敵の座標移動、描画
         for enemy_neko in enemies_neko:
-            enemy_neko.move(neko)
+            enemy_neko.move(neko, play_time)
             canvas.create_image(
                 enemy_neko.x, enemy_neko.y, image=img_enemy[enemy_neko.img_index], tag="SCREEN")
             # プレイヤーとの接触判定

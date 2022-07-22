@@ -20,3 +20,14 @@ class Player:
             self.y += self.speed
         if key.up and self.y > size:  # 上
             self.y -= self.speed
+
+    def move_mouse(self, c_width, c_height):
+        global size
+        if self.x < c_width - size:  # 右
+            self.x = self.speed
+        if self.x > size:  # 左
+            self.x = self.speed
+        if self.y < c_height - size:  # 下
+            self.y = self.speed
+        if self.y > size:  # 上
+            self.y = self.speed
