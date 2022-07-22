@@ -3,11 +3,12 @@ import math
 
 class Enemy:
     def __init__(self, x, y, img_index, time):
-        self.x = x
-        self.y = y
-        self.speed = 2
-        self.img_index = img_index
-        self.time = time
+        self.x = x  # x座標
+        self.y = y  # y座標
+        self.speed = 2  # 足の速さ
+        self.img_index = img_index  # 画像番号
+        self.time = time  # 出現時の経過時間
+        self.is_true = True  # テスト中
 
     # プレイヤーに向かって移動する
     def move(self, target, time):
@@ -27,8 +28,21 @@ class Enemy:
             self.x += (self.speed+3)*math.cos(r)
             self.y += (self.speed+3)*math.sin(r)
         if self.img_index == 4:
-            self.x += (self.speed+5)*math.cos(r)
-            self.y += (self.speed+5)*math.sin(r)
+            # テスト中
+            is_do = (time - self.time) % 5 == 0
+            speed = 0
+            # if is_do and self.is_true:
+            #     speed = 20
+            #     self.is_true = False
+            # elif not(is_do) and self.is_true == False:
+            #     speed = 0
+            #     self.is_true = True
+            if is_do:
+                speed = 10
+            elif not(is_do):
+                speed = 0
+            self.x += (self.speed+speed)*math.cos(r)
+            self.y += (self.speed+speed)*math.sin(r)
         # self.x += self.speed*math.cos(r)
         # self.y += self.speed*math.sin(r)
 
