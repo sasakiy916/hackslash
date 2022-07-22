@@ -29,7 +29,7 @@ class Enemy:
             self.y += (self.speed+3)*math.sin(r)
         if self.img_index == 4:
             # テスト中
-            is_do = (time - self.time) % 5 == 0
+            is_quick = (time - self.time) % 5 == 0
             speed = 0
             # if is_do and self.is_true:
             #     speed = 20
@@ -37,9 +37,9 @@ class Enemy:
             # elif not(is_do) and self.is_true == False:
             #     speed = 0
             #     self.is_true = True
-            if is_do:
+            if is_quick:
                 speed = 10
-            elif not(is_do):
+            elif not(is_quick):
                 speed = 0
             self.x += (self.speed+speed)*math.cos(r)
             self.y += (self.speed+speed)*math.sin(r)
