@@ -1,4 +1,6 @@
 key = ""
+mouse_button = 0
+mouse_x, mouse_y = 0, 0
 
 right = False
 left = False
@@ -33,5 +35,23 @@ def release(e):
         left = False
     if key == "Right":
         right = False
-    koff = False
     key = ""
+    koff = False
+
+
+def mouse(e):
+    global mouse_x, mouse_y
+    mouse_x = e.x
+    mouse_y = e.y
+
+
+def mouse_click(e):
+    global mouse_button
+    if mouse_button == 0:
+        mouse_button = e.num
+
+
+def mouse_release(e):
+    global mouse_button
+    if mouse_button != 0:
+        mouse_button = 0

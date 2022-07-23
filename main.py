@@ -38,25 +38,25 @@ spawn_enemy_se = None
 delete_se = None
 gameover_se = None
 
-# プレイヤーの初期化
+# 操作方法(デフォルト:キーボード)
+key_or_mouse = player.MOVE_KEY
 
 
 def init_player():
+    # プレイヤーの初期化
     global neko, c_width, c_height
     neko = player.Player(c_width/2, c_height/2)
 
-# 敵の初期化
-
 
 def init_enemy():
+    # 敵の初期化
     global enemies_neko
     enemies_neko = []
     spawn_enemy(1, 0)
 
-# 敵スポーン
-
 
 def spawn_enemy(num, time):
+    # 敵スポーン
     global enemies_neko
     for i in range(num):
         # 出現方向(上下左右)、場所抽選
@@ -77,23 +77,24 @@ def spawn_enemy(num, time):
         enemies_neko.append(enemy.Enemy(
             x, y, random.randint(0, 4), time))
 
-# アイテム初期化
-
 
 def init_items():
+    # アイテム初期化
     global items
     items = []
 
-# アイテムスポーン
-
 
 def spawn_item(num):
+    # アイテムスポーン
     global items
     items.append(item.Item(c_width, c_height))
 
 
+prev_key = key.key
+
+
 def main():
-    global score, state, fnt1, fnt2, timer, timer_count, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se
+    global score, state, fnt1, fnt2, timer, timer_count, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se, key_or_mouse, prev_key
     # 経過時間 ミリ秒→秒に変換
     play_time = math.floor(timer * timer_count / 1000)
     canvas.delete("SCREEN")
@@ -103,6 +104,19 @@ def main():
                            fill="blue", font=fnt2, tag="SCREEN")
         canvas.create_text(c_width/2, c_height/2+80, text="Press Space to Start",
                            fill="gold", font=fnt1, tag="SCREEN")
+        if key_or_mouse == player.MOVE_KEY:
+            canvas.create_text(c_width/2, c_height/2+160, text="操作方法:キーボード",
+                               fill="gold", font=fnt1, tag="SCREEN")
+        elif key_or_mouse == player.MOVE_MOUSE:
+            canvas.create_text(c_width/2, c_height/2+160, text="操作方法:マウス",
+                               fill="gold", font=fnt1, tag="SCREEN")
+        # デバッグ中
+        if key.key == "a":
+            # key_or_mouse = player.MOVE_KEY if key_or_mouse != player.MOVE_KEY else player.MOVE_MOUSE
+            if key_or_mouse == player.MOVE_MOUSE:
+                key_or_mouse = player.MOVE_KEY
+            elif key_or_mouse == player.MOVE_MOUSE:
+                key_or_mouse = player.MOVE_KEY
         if score != 0:
             canvas.create_text(c_width/2, c_height/2+160, text=f"前回のTIME:{score}",
                                fill="red", font=fnt1, tag="SCREEN")
@@ -132,7 +146,7 @@ def main():
         canvas.create_text(10, 10, text=f"TIME:{play_time}",
                            fill="black", font=fnt1, tag="SCREEN", anchor="nw")
         # 自機の座標移動、描画
-        neko.move(c_width, c_height)
+        neko.move(c_width, c_height, key_or_mouse)
         canvas.create_image(neko.x, neko.y, image=img_player, tag="SCREEN")
         # アイテムの描画
         for item in items:
@@ -184,6 +198,9 @@ root = tk.Tk()
 root.title("ねこサバイバー")
 root.bind("<KeyPress>", key.press)
 root.bind("<KeyRelease>", key.release)
+root.bind("<Motion>", key.mouse)
+root.bind("<Button>", key.mouse_click)
+root.bind("<ButtonRelease>", key.mouse_release)
 canvas = tk.Canvas(width=c_width, height=c_height)
 canvas.pack()
 # 画像読み込み
