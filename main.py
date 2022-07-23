@@ -40,6 +40,7 @@ gameover_se = None
 
 # 操作方法(デフォルト:キーボード)
 key_or_mouse = player.MOVE_KEY
+key_enter = True
 
 
 def init_player():
@@ -90,11 +91,8 @@ def spawn_item(num):
     items.append(item.Item(c_width, c_height))
 
 
-prev_key = key.key
-
-
 def main():
-    global score, state, fnt1, fnt2, timer, timer_count, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se, key_or_mouse, prev_key
+    global score, state, fnt1, fnt2, timer, timer_count, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se, key_or_mouse, key_enter
     # 経過時間 ミリ秒→秒に変換
     play_time = math.floor(timer * timer_count / 1000)
     canvas.delete("SCREEN")
@@ -110,16 +108,17 @@ def main():
         elif key_or_mouse == player.MOVE_MOUSE:
             canvas.create_text(c_width/2, c_height/2+160, text="操作方法:マウス",
                                fill="gold", font=fnt1, tag="SCREEN")
-        # デバッグ中
+        # 操作方法の変更
         if key.key == "a":
-            # key_or_mouse = player.MOVE_KEY if key_or_mouse != player.MOVE_KEY else player.MOVE_MOUSE
-            if key_or_mouse == player.MOVE_MOUSE:
-                key_or_mouse = player.MOVE_KEY
-            elif key_or_mouse == player.MOVE_MOUSE:
-                key_or_mouse = player.MOVE_KEY
+            key_or_mouse = player.MOVE_KEY
+        if key.key == "s":
+            key_or_mouse = player.MOVE_MOUSE
+
         if score != 0:
-            canvas.create_text(c_width/2, c_height/2+160, text=f"前回のTIME:{score}",
-                               fill="red", font=fnt1, tag="SCREEN")
+            # canvas.create_text(c_width/2, c_height/2+160, text=f"前回のTIME:{score}",
+            #                    fill="red", font=fnt1, tag="SCREEN")
+            canvas.create_text(10, 19, text=f"前回のTIME:{score}",
+                               fill="red", font=fnt1, anchor="nw", tag="SCREEN")
         # spaceキーでゲームスタート
         if key.key == "space":
             init_player()
