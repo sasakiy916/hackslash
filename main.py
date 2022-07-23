@@ -166,11 +166,13 @@ def main():
     if state == GAMEOVER:
         canvas.create_text(10, 10, text=f"TIME:{score}",
                            fill="black", font=fnt1, tag="SCREEN", anchor="nw")
-        canvas.create_text(c_width/2, c_height/2, text="GAME OVER",
+        # GAMEOVERテキストを上から画面真ん中に移動しながら描画
+        text_height = timer*5 if timer*5 <= c_height/2 else c_height/2
+        canvas.create_text(c_width/2, text_height, text="GAME OVER",
                            fill="red", font=fnt2, tag="SCREEN")
         if pygame.mixer.music.get_busy() == True:
             pygame.mixer.music.stop()
-        if timer == 30:
+        if timer == 60:
             state = TITLE
             timer = 0
         timer += 1
