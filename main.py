@@ -9,6 +9,7 @@ import key
 import player
 import enemy
 import item
+from savedata import save, load
 
 # ゲームの状態定数
 state = 1  # 現在の状態
@@ -20,6 +21,7 @@ GAMEOVER = 4
 timer = 0
 timer_count = 50
 score = 0
+hiscore = 0
 # プレイヤー、敵、アイテムインスタンス
 neko = None
 enemies_neko = []
@@ -92,20 +94,21 @@ def spawn_item(num):
 
 
 def main():
-    global score, state, fnt1, fnt2, timer, timer_count, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se, key_or_mouse, key_enter
+    global score, hiscore, state, fnt1, fnt2, timer, timer_count, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se, key_or_mouse, key_enter
     # 経過時間 ミリ秒→秒に変換
     play_time = math.floor(timer * timer_count / 1000)
     canvas.delete("SCREEN")
+    # タイトル画面
     if state == TITLE:
-        # タイトル画面テキスト
+        # タイトルテキスト
         canvas.create_text(c_width/2, c_height/2, text="ねこサバイバー",
                            fill="blue", font=fnt2, tag="SCREEN")
         canvas.create_text(c_width/2, c_height/2+80, text="Press Space to Start",
                            fill="gold", font=fnt1, tag="SCREEN")
-        if key_or_mouse == player.MOVE_KEY:
+        if key_or_mouse == player.MOVE_KEY:  # 操作方法:キーボード時
             canvas.create_text(c_width/2, c_height/2+160, text="操作方法:キーボード",
                                fill="gold", font=fnt1, tag="SCREEN")
-        elif key_or_mouse == player.MOVE_MOUSE:
+        elif key_or_mouse == player.MOVE_MOUSE:  # 操作方法:マウス時
             canvas.create_text(c_width/2, c_height/2+160, text="操作方法:マウス",
                                fill="gold", font=fnt1, tag="SCREEN")
         # 操作方法の変更
@@ -114,10 +117,8 @@ def main():
         if key.key == "s":
             key_or_mouse = player.MOVE_MOUSE
 
-        if score != 0:
-            # canvas.create_text(c_width/2, c_height/2+160, text=f"前回のTIME:{score}",
-            #                    fill="red", font=fnt1, tag="SCREEN")
-            canvas.create_text(10, 19, text=f"前回のTIME:{score}",
+        if hiscore != 0:  # 最長の生存時間表示
+            canvas.create_text(10, 10, text=f"生存時間:{hiscore}秒(最長)",
                                fill="red", font=fnt1, anchor="nw", tag="SCREEN")
         # spaceキーでゲームスタート
         if key.key == "space":
@@ -142,7 +143,7 @@ def main():
                                fill="black", font=fnt1, tag="SCREEN", anchor="nw")
     if state == GAME:
         # 経過時間表示
-        canvas.create_text(10, 10, text=f"TIME:{play_time}",
+        canvas.create_text(10, 10, text=f"生存時間:{play_time}",
                            fill="black", font=fnt1, tag="SCREEN", anchor="nw")
         # 自機の座標移動、描画
         neko.move(c_width, c_height, key_or_mouse)
@@ -177,7 +178,10 @@ def main():
                 timer = 0
         timer += 1
     if state == GAMEOVER:
-        canvas.create_text(10, 10, text=f"TIME:{score}",
+        if hiscore < score:
+            hiscore = score
+            save(hiscore)
+        canvas.create_text(10, 10, text=f"生存時間:{score}",
                            fill="black", font=fnt1, tag="SCREEN", anchor="nw")
         # GAMEOVERテキストを上から画面真ん中に移動しながら描画
         text_height = timer*5 if timer*5 <= c_height/2 else c_height/2
@@ -218,6 +222,8 @@ img_enemy = []
 for img in img_enemy_open:
     img_enemy.append(ImageTk.PhotoImage(img))
 
+savedata = load()
+hiscore = savedata["生存時間"]
 # ゲーム実行
 main()
 root.mainloop()
