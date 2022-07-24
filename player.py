@@ -14,6 +14,7 @@ class Player:
     # 移動処理
     def move(self, c_width, c_height, operation=MOVE_KEY):
         global size
+        # キーボード操作
         if operation == MOVE_KEY:
             if key.right and self.x < c_width - size:  # 右
                 self.x += self.speed
@@ -23,6 +24,7 @@ class Player:
                 self.y += self.speed
             if key.up and self.y > size:  # 上
                 self.y -= self.speed
+        # マウス操作
         elif operation == MOVE_MOUSE:
             if self.x < c_width - size:  # 右
                 self.x = key.mouse_x
@@ -32,14 +34,3 @@ class Player:
                 self.y = key.mouse_y
             if self.y > size:  # 上
                 self.y = key.mouse_y
-
-    def move_mouse(self, c_width, c_height):
-        global size
-        if self.x < c_width - size:  # 右
-            self.x = self.speed
-        if self.x > size:  # 左
-            self.x = self.speed
-        if self.y < c_height - size:  # 下
-            self.y = self.speed
-        if self.y > size:  # 上
-            self.y = self.speed
