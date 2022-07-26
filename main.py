@@ -14,20 +14,25 @@ from savedata import save, load
 # ゲームの状態定数
 state = 1  # 現在の状態
 TITLE = 1
-GAME = 2
-# CLEAR = 3  # 未実装
-GAMEOVER = 4
+GAME_ENDLESS = 2
+GAME_NORMAL = 3
+CLEAR = 4
+GAMEOVER = 5
 
+gamemode = GAME_ENDLESS
 timer = 0
-timer_count = 50
+frame_ms = 50
+clear_timer = 100
 score = 0
 hiscore = 0
+clear_flg = False
 # プレイヤー、敵、アイテムインスタンス
 neko = None
 enemies_neko = []
 items = []
 
 # フォントの種類、サイズ
+fnt0 = ("Times New Roman", 8)
 fnt1 = ("Times New Roman", 24)
 fnt2 = ("Times New Roman", 40)
 # キャンバスの大きさ
@@ -94,38 +99,56 @@ def spawn_item(num):
 
 
 def main():
-    global score, hiscore, state, fnt1, fnt2, timer, timer_count, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se, key_or_mouse, key_enter
+    global score, hiscore, state, fnt1, fnt2, clear_timer, timer, frame_ms, neko, items, enemies_neko, spawn_enemy_se, spawn_item_se, delete_se, gameover_se, key_or_mouse, key_enter, gamemode, clear_flg
     # 経過時間 ミリ秒→秒に変換
-    play_time = math.floor(timer * timer_count / 1000)
+    play_time = math.floor(timer * frame_ms / 1000)
     canvas.delete("SCREEN")
     # タイトル画面
     if state == TITLE:
         # タイトルテキスト
         canvas.create_text(c_width/2, c_height/2, text="ねこサバイバー",
                            fill="blue", font=fnt2, tag="SCREEN")
-        canvas.create_text(c_width/2, c_height/2+80, text="Press Space to Start",
-                           fill="gold", font=fnt1, tag="SCREEN")
+        canvas.create_text(c_width/2, c_height/2+60, text="Press Space to Start",
+                           fill="black", font=fnt1, tag="SCREEN")
         if key_or_mouse == player.MOVE_KEY:  # 操作方法:キーボード時
-            canvas.create_text(c_width/2, c_height/2+160, text="操作方法:キーボード",
-                               fill="gold", font=fnt1, tag="SCREEN")
+            canvas.create_text(c_width/2, c_height/2+180, text="操作方法:キーボード",
+                               fill="black", font=fnt1, tag="SCREEN")
         elif key_or_mouse == player.MOVE_MOUSE:  # 操作方法:マウス時
-            canvas.create_text(c_width/2, c_height/2+160, text="操作方法:マウス",
-                               fill="gold", font=fnt1, tag="SCREEN")
+            canvas.create_text(c_width/2, c_height/2+180, text="操作方法:マウス",
+                               fill="black", font=fnt1, tag="SCREEN")
+        if gamemode == GAME_NORMAL:
+            canvas.create_text(c_width/2, c_height/2+120, text="ゲームモード:ノーマル",
+                               fill="black", font=fnt1, tag="SCREEN")
+        elif gamemode == GAME_ENDLESS:
+            canvas.create_text(c_width/2, c_height/2+120, text="ゲームモード:エンドレス",
+                               fill="black", font=fnt1, tag="SCREEN")
+        if clear_flg == False:
+            canvas.create_text(10, c_height - 10 - img_hakase_resized.height, text="お主が真の\n「ねこサバイバー」じゃ！！",
+                               fill="red", font=fnt0, anchor="sw", tag="SCREEN")
+            canvas.create_image(10, c_height - 10, image=img_hakase,
+                                anchor="sw", tag="SCREEN")
         # 操作方法の変更
         if key.key == "a":
             key_or_mouse = player.MOVE_KEY
         if key.key == "s":
             key_or_mouse = player.MOVE_MOUSE
 
+        # ゲームモードの変更
+        if key.key == "Left":
+            gamemode = GAME_ENDLESS
+        if key.key == "Right":
+            gamemode = GAME_NORMAL
+
         if hiscore != 0:  # 最長の生存時間表示
-            canvas.create_text(10, 10, text=f"生存時間:{hiscore}秒(最長)",
+            canvas.create_text(10, 10, text=f"エンドレス生存時間:{hiscore}秒",
                                fill="red", font=fnt1, anchor="nw", tag="SCREEN")
         # spaceキーでゲームスタート
         if key.key == "space":
             init_player()
             init_enemy()
             init_items()
-            state = GAME
+            state = gamemode
+            print(state)
             pygame.init()
             # 音声読み込み
             try:
@@ -141,10 +164,14 @@ def main():
                 pygame.mixer.music.play(-1)
             canvas.create_text(10, 10, text=f"TIME:0",
                                fill="black", font=fnt1, tag="SCREEN", anchor="nw")
-    if state == GAME:
+    if state == GAME_ENDLESS or state == GAME_NORMAL:
         # 経過時間表示
-        canvas.create_text(10, 10, text=f"生存時間:{play_time}",
-                           fill="black", font=fnt1, tag="SCREEN", anchor="nw")
+        if state == GAME_ENDLESS:
+            canvas.create_text(10, 10, text=f"生存時間:{play_time}",
+                               fill="black", font=fnt1, tag="SCREEN", anchor="nw")
+        elif state == GAME_NORMAL:
+            canvas.create_text(10, 10, text=f"クリアまで:{clear_timer - play_time}",
+                               fill="black", font=fnt1, tag="SCREEN", anchor="nw")
         # 自機の座標移動、描画
         neko.move(c_width, c_height, key_or_mouse)
         canvas.create_image(neko.x, neko.y, image=img_player, tag="SCREEN")
@@ -157,7 +184,7 @@ def main():
                 items.remove(item)
                 delete_se.play()
         # 5秒毎に敵を追加
-        if timer != 0 and timer*timer_count % 5000 == 0:
+        if timer != 0 and timer*frame_ms % 5000 == 0:
             spawn_enemy(2, play_time)
             spawn_enemy_se.play()
             # 50%の確率でアイテム出現
@@ -177,12 +204,22 @@ def main():
                 score = play_time
                 timer = 0
         timer += 1
+        # ノーマルモードでクリア
+        if gamemode == GAME_NORMAL and clear_timer - play_time <= 0:
+            state = CLEAR
+            score = play_time
+            clear_flg = True
+            timer = 0
     if state == GAMEOVER:
         if hiscore < score:
             hiscore = score
             save(hiscore)
-        canvas.create_text(10, 10, text=f"生存時間:{score}",
-                           fill="black", font=fnt1, tag="SCREEN", anchor="nw")
+        if gamemode == GAME_ENDLESS:
+            canvas.create_text(10, 10, text=f"生存時間:{score}",
+                               fill="black", font=fnt1, tag="SCREEN", anchor="nw")
+        elif gamemode == GAME_NORMAL:
+            canvas.create_text(10, 10, text=f"残り時間:{clear_timer - score}",
+                               fill="black", font=fnt1, tag="SCREEN", anchor="nw")
         # GAMEOVERテキストを上から画面真ん中に移動しながら描画
         text_height = timer*5 if timer*5 <= c_height/2 else c_height/2
         canvas.create_text(c_width/2, text_height, text="GAME OVER",
@@ -193,7 +230,18 @@ def main():
             state = TITLE
             timer = 0
         timer += 1
-    root.after(timer_count, main)
+    if state == CLEAR:
+        text_height = timer*5 if timer*5 <= c_height/2 else c_height/2
+        canvas.create_text(c_width/2, text_height, text="GAME CLEAR",
+                           fill="red", font=fnt2, tag="SCREEN")
+        if pygame.mixer.music.get_busy() == True:
+            pygame.mixer.music.stop()
+        if timer == 60:
+            state = TITLE
+            timer = 0
+        timer += 1
+
+    root.after(frame_ms, main)
 
 
 # ウインドウ用意
@@ -221,7 +269,9 @@ img_enemy_open = [
 img_enemy = []
 for img in img_enemy_open:
     img_enemy.append(ImageTk.PhotoImage(img))
-
+img_hakase_open = Image.open("images/hakase4_laugh.png")
+img_hakase_resized = img_hakase_open.resize((100, 100))
+img_hakase = ImageTk.PhotoImage(img_hakase_resized)
 savedata = load()
 hiscore = savedata["生存時間"]
 # ゲーム実行
