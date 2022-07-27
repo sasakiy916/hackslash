@@ -122,7 +122,7 @@ def main():
         elif gamemode == GAME_ENDLESS:
             canvas.create_text(c_width/2, c_height/2+120, text="ゲームモード:エンドレス",
                                fill="black", font=fnt1, tag="SCREEN")
-        if clear_flg == False:
+        if clear_flg:
             canvas.create_text(10, c_height - 10 - img_hakase_resized.height, text="お主が真の\n「ねこサバイバー」じゃ！！",
                                fill="red", font=fnt0, anchor="sw", tag="SCREEN")
             canvas.create_image(10, c_height - 10, image=img_hakase,
